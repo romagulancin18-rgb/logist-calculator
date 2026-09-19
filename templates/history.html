@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>История рейсов</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 25px 15px 40px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 11px 18px;
+            background: #222;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .back-button:hover {
+            background: #444;
+        }
+
+        .empty {
+            background: white;
+            padding: 40px 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+        }
+
+        .empty h2 {
+            margin-top: 0;
+        }
+
+        .table-wrapper {
+            background: white;
+            border-radius: 15px;
+            overflow-x: auto;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th,
+        td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        td {
+            font-size: 14px;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .route {
+            font-weight: bold;
+        }
+
+        .profit {
+            font-weight: bold;
+        }
+
+        .profit-positive {
+            color: #15803d;
+        }
+
+        .profit-negative {
+            color: #dc2626;
+        }
+
+        .margin {
+            font-weight: bold;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .open-button,
+        .delete-button {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .open-button {
+            background: #e8f1ff;
+            color: #1557a6;
+        }
+
+        .delete-button {
+            background: #ffe8e8;
+            color: #b91c1c;
+        }
+
+        .open-button:hover {
+            background: #d8e8ff;
+        }
+
+        .delete-button:hover {
+            background: #ffd6d6;
+        }
+
+        .summary {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .summary-title {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 7px;
+        }
+
+        .summary-value {
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 800px) {
+
+            .top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .back-button {
+                text-align: center;
+            }
+
+            .summary {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .container {
+                padding: 18px 10px 30px;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-value {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top">
+
+        <h1>История рейсов</h1>
+
+        <a href="/" class="back-button">
+            ← Вернуться к калькулятору
+        </a>
+
+    </div>
+
+
+    {% if trips %}
+
+    <div class="summary">
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Всего рейсов
+            </div>
+
+            <div class="summary-value">
+                {{ trips|length }}
+            </div>
+        </div>
+
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Общая выручка
+            </div>
+
+            <div class="summary-value">
+                {{ "%.0f"|format(trips|sum(attribute="revenue")) }} ₽
+            </div>
+        </div>
+
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Общие затраты
+            </div>
+
+            <div class="summary-value">
+                {{ "%.0f"|format(trips|sum(attribute="total_cost")) }} ₽
+            </div>
+        </div>
+
+
+        <div class="summary-card">
+            <div class="summary-title">
+                Общая прибыль
+            </div>
+
+            <div class="summary-value">
+                {{ "%.0f"|format(trips|sum(attribute="profit")) }} ₽
+            </div>
+        </div>
+
+    </div>
+
+
+    <br>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+            <tr>
+                <th>Дата</th>
+                <th>Маршрут</th>
+                <th>Пробег</th>
+                <th>Ставка</th>
+                <th>Выручка</th>
+                <th>Затраты</th>
+                <th>Прибыль</th>
+                <th>Маржа</th>
+                <th>Действия</th>
+            </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for trip in trips %}
+
+            <tr>
+
+                <td>
+                    {{ trip["created_at"] }}
+                </td>
+
+
+                <td class="route">
+
+                    {% if trip["route"] %}
+
+                        {{ trip["route"] }}
+
+                    {% else %}
+
+                        Без названия
+
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+                    {{ "%.1f"|format(trip["distance"]) }} км
+                </td>
+
+
+                <td>
+                    {{ "%.2f"|format(trip["rate"]) }} ₽/км
+                </td>
+
+
+                <td>
+                    {{ "%.0f"|format(trip["revenue"]) }} ₽
+                </td>
+
+
+                <td>
+                    {{ "%.0f"|format(trip["total_cost"]) }} ₽
+                </td>
+
+
+                <td class="profit
+                    {% if trip['profit'] >= 0 %}
+                        profit-positive
+                    {% else %}
+                        profit-negative
+                    {% endif %}
+                ">
+
+                    {{ "%.0f"|format(trip["profit"]) }} ₽
+
+                </td>
+
+
+                <td class="margin">
+
+                    {{ "%.1f"|format(trip["margin"]) }}%
+
+                </td>
+
+
+                <td>
+
+                    <div class="actions">
+
+                        <a
+                            href="/history/{{ trip['id'] }}"
+                            class="open-button"
+                            style="text-decoration: none;"
+                        >
+                            Открыть
+                        </a>
+
+
+                        <form
+                            method="POST"
+                            action="/history/delete/{{ trip['id'] }}"
+                            onsubmit="return confirm('Удалить этот рейс из истории?');"
+                        >
+
+                            <button
+                                type="submit"
+                                class="delete-button"
+                            >
+                                Удалить
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty">
+
+        <h2>История пока пустая</h2>
+
+        <p>
+            Выполни первый расчёт рейса — он автоматически появится здесь.
+        </p>
+
+        <br>
+
+        <a href="/" class="back-button">
+            Открыть калькулятор
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

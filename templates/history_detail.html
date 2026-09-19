@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Детали рейса</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 25px 15px 40px;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 11px 17px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-button {
+            background: #222;
+            color: white;
+        }
+
+        .history-button {
+            background: #e7edf5;
+            color: #222;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 18px;
+            font-size: 21px;
+        }
+
+        .route {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 7px;
+        }
+
+        .date {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+
+        .indicator {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 17px;
+        }
+
+        .indicator-title {
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .indicator-value {
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        .positive {
+            color: #15803d;
+        }
+
+        .negative {
+            color: #dc2626;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0 30px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 11px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #666;
+        }
+
+        .value {
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .danger {
+            color: #dc2626;
+        }
+
+        .warning {
+            color: #d97706;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        @media (max-width: 800px) {
+
+            .top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .button {
+                text-align: center;
+            }
+
+            .main-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .data-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 500px) {
+
+            .container {
+                padding: 18px 10px 30px;
+            }
+
+            h1 {
+                font-size: 25px;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .route {
+                font-size: 21px;
+            }
+
+            .card {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="top">
+
+        <h1>Детали рейса</h1>
+
+        <div class="buttons">
+
+            <a href="/history" class="button history-button">
+                ← История
+            </a>
+
+            <a href="/" class="button back-button">
+                Калькулятор
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- НАЗВАНИЕ РЕЙСА -->
+    <!-- ========================================= -->
+
+    <div class="card">
+
+        <div class="route">
+
+            {% if trip["route"] %}
+                {{ trip["route"] }}
+            {% else %}
+                Рейс без названия
+            {% endif %}
+
+        </div>
+
+        <div class="date">
+            Расчёт создан: {{ trip["created_at"] }}
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- ГЛАВНЫЕ ПОКАЗАТЕЛИ -->
+    <!-- ========================================= -->
+
+    <div class="card">
+
+        <h2>Главные показатели</h2>
+
+        <div class="main-grid">
+
+            <div class="indicator">
+
+                <div class="indicator-title">
+                    Выручка
+                </div>
+
+                <div class="indicator-value">
+                    {{ "%.0f"|format(trip["revenue"]) }} ₽
+                </div>
+
+            </div>
+
+
+            <div class="indicator">
+
+                <div class="indicator-title">
+                    Затраты
+                </div>
+
+                <div class="indicator-value">
+                    {{ "%.0f"|format(trip["total_cost"]) }} ₽
+                </div>
+
+            </div>
+
+
+            <div class="indicator">
+
+                <div class="indicator-title">
+                    Прибыль
+                </div>
+
+                <div class="indicator-value
+                    {% if trip['profit'] >= 0 %}
+                        positive
+                    {% else %}
+                        negative
+                    {% endif %}
+                ">
+
+                    {{ "%.0f"|format(trip["profit"]) }} ₽
+
+                </div>
+
+            </div>
+
+
+            <div class="indicator">
+
+                <div class="indicator-title">
+                    Маржа
+                </div>
+
+                <div class="indicator-value
+                    {% if trip['margin'] >= 10 %}
+                        positive
+                    {% elif trip['margin'] >= 0 %}
+                        warning
+                    {% else %}
+                        negative
+                    {% endif %}
+                ">
+
+                    {{ "%.1f"|format(trip["margin"]) }}%
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- МАРШРУТ И СТАВКА -->
+    <!-- ========================================= -->
+
+    <div class="card">
+
+        <h2>Маршрут и ставка</h2>
+
+        <div class="data-grid">
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Оплачиваемый пробег</span>
+                    <span class="value">
+                        {{ "%.1f"|format(trip["distance"]) }} км
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Обратный пробег</span>
+                    <span class="value">
+                        {{ "%.1f"|format(trip["return_distance"]) }} км
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Общий пробег</span>
+                    <span class="value">
+                        {{ "%.1f"|format(trip["total_distance"]) }} км
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Обратный пробег</span>
+                    <span class="value">
+                        {{ "%.1f"|format(trip["return_percent"]) }}%
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Текущая ставка</span>
+                    <span class="value">
+                        {{ "%.2f"|format(trip["rate"]) }} ₽/км
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Минимальная ставка</span>
+                    <span class="value">
+                        {{ "%.2f"|format(trip["minimum_rate"]) }} ₽/км
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Целевая ставка</span>
+                    <span class="value">
+                        {{ "%.2f"|format(trip["target_rate"]) }} ₽/км
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Запас по ставке</span>
+                    <span class="value">
+                        {{ "%.2f"|format(trip["rate_reserve"]) }} ₽/км
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- РАСХОДЫ -->
+    <!-- ========================================= -->
+
+    <div class="card">
+
+        <h2>Расходы рейса</h2>
+
+        <div class="data-grid">
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Топливо</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["fuel_cost"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Водитель</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["driver_cost"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Ремонт</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["repair_cost"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Шины</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["tires_cost"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Амортизация</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["depreciation_cost"]) }} ₽
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Постоянные расходы</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["fixed_cost"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Платные дороги</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["toll"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Погрузка / разгрузка</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["loading"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Прочие расходы</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["other"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Всего расходов</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["total_cost"]) }} ₽
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- ТОПЛИВО -->
+    <!-- ========================================= -->
+
+    <div class="card">
+
+        <h2>Топливо</h2>
+
+        <div class="data-grid">
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Расход</span>
+                    <span class="value">
+                        {{ "%.1f"|format(trip["consumption"]) }} л/100 км
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Цена топлива</span>
+                    <span class="value">
+                        {{ "%.2f"|format(trip["fuel_price"]) }} ₽/л
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Всего топлива</span>
+                    <span class="value">
+                        {{ "%.1f"|format(trip["liters"]) }} л
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Затраты на топливо</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["fuel_cost"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Топливо на 1 факт. км</span>
+                    <span class="value">
+                        {% if trip["total_distance"] > 0 %}
+                            {{ "%.2f"|format(trip["fuel_cost"] / trip["total_distance"]) }} ₽
+                        {% else %}
+                            0.00 ₽
+                        {% endif %}
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- ПОСТОЯННЫЕ РАСХОДЫ -->
+    <!-- ========================================= -->
+
+    <div class="card">
+
+        <h2>Постоянные расходы</h2>
+
+        <div class="data-grid">
+
+            <div>
+
+                <div class="row">
+                    <span class="label">ОСАГО</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["osago"]) }} ₽/мес
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">КАСКО</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["kasko"]) }} ₽/мес
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Транспортный налог</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["tax"]) }} ₽/мес
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Лизинг / кредит</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["leasing"]) }} ₽/мес
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Парковка</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["parking"]) }} ₽/мес
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Мойка</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["washing"]) }} ₽/мес
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Диспетчер</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["dispatcher"]) }} ₽/мес
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Плановый пробег</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["monthly_distance"]) }} км/мес
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ========================================= -->
+    <!-- ЦЕЛЕВАЯ МОДЕЛЬ -->
+    <!-- ========================================= -->
+
+    <div class="card">
+
+        <h2>Целевая модель</h2>
+
+        <div class="data-grid">
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Целевая маржа</span>
+                    <span class="value">
+                        {{ "%.1f"|format(trip["target_margin"]) }}%
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Целевая ставка</span>
+                    <span class="value">
+                        {{ "%.2f"|format(trip["target_rate"]) }} ₽/км
+                    </span>
+                </div>
+
+            </div>
+
+
+            <div>
+
+                <div class="row">
+                    <span class="label">Целевая выручка</span>
+                    <span class="value">
+                        {{ "%.0f"|format(trip["target_revenue"]) }} ₽
+                    </span>
+                </div>
+
+                <div class="row">
+                    <span class="label">Целевая прибыль</span>
+                    <span class="value positive">
+                        {{ "%.0f"|format(trip["target_profit"]) }} ₽
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1958 @@
+```
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+
+    <link rel="manifest" href="/static/manifest.json">
+
+    <meta name="theme-color" content="#2563eb">
+
+<link
+    rel="apple-touch-icon"
+    sizes="180x180"
+    href="/static/icons/icon-180.png"
+>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Калькулятор логиста
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            padding: 15px;
+
+            font-family:
+                Arial,
+                sans-serif;
+
+            background: #eef1f5;
+
+            color: #202124;
+        }
+
+
+        .container {
+
+            max-width: 1000px;
+
+            margin: auto;
+        }
+
+
+        h1 {
+
+            text-align: center;
+
+            margin: 10px 0 25px;
+
+            font-size: 30px;
+        }
+
+
+        .card {
+
+            background: white;
+
+            padding: 20px;
+
+            margin-bottom: 18px;
+
+            border-radius: 15px;
+
+            box-shadow:
+                0 3px 12px
+                rgba(0, 0, 0, 0.08);
+        }
+
+
+        .card h2 {
+
+            margin-top: 0;
+
+            font-size: 20px;
+        }
+
+
+        .fields {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 14px;
+        }
+
+
+        label {
+
+            display: block;
+
+            font-size: 14px;
+
+            color: #555;
+
+            margin-bottom: 6px;
+        }
+
+
+        input {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+        }
+
+
+        input:focus {
+
+            outline: none;
+
+            border-color: #2563eb;
+        }
+
+
+        .button {
+
+            width: 100%;
+
+            padding: 17px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background: #2563eb;
+
+            color: white;
+
+            font-size: 18px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            margin-bottom: 20px;
+        }
+
+
+        .button:hover {
+
+            opacity: 0.9;
+        }
+
+
+        .history-button {
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 18px;
+            border-radius: 10px;
+            background: #222;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+
+        .history-button:hover {
+            opacity: 0.9;
+        }
+
+
+        /* ==========================================
+           СТАТУС
+        ========================================== */
+
+        .status {
+
+            padding: 18px;
+
+            border-radius: 12px;
+
+            text-align: center;
+
+            font-size: 22px;
+
+            font-weight: bold;
+
+            margin-bottom: 18px;
+        }
+
+
+        .status.success {
+
+            background: #e4f7eb;
+
+            color: #16803c;
+        }
+
+
+        .status.warning {
+
+            background: #fff5d9;
+
+            color: #9a6700;
+        }
+
+
+        .status.danger {
+
+            background: #fde8e8;
+
+            color: #c62828;
+        }
+
+
+        /* ==========================================
+           ОСНОВНЫЕ РЕЗУЛЬТАТЫ
+        ========================================== */
+
+        .results {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 12px;
+        }
+
+
+        .result {
+
+            background: #f4f5f7;
+
+            padding: 15px;
+
+            border-radius: 10px;
+        }
+
+
+        .result-name {
+
+            font-size: 13px;
+
+            color: #666;
+        }
+
+
+        .result-value {
+
+            font-size: 21px;
+
+            font-weight: bold;
+
+            margin-top: 5px;
+        }
+
+
+        .important {
+
+            background: #e8efff;
+        }
+
+
+        .important
+        .result-value {
+
+            font-size: 27px;
+        }
+
+
+        .profit {
+
+            color: #16803c;
+        }
+
+
+        .loss {
+
+            color: #c62828;
+        }
+
+
+        /* ==========================================
+           СТРУКТУРА РАСХОДОВ
+        ========================================== */
+
+        .cost-row {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 120px 80px;
+
+            gap: 10px;
+
+            padding: 12px 0;
+
+            border-bottom:
+                1px solid #e5e5e5;
+
+            align-items: center;
+        }
+
+
+        .cost-row:last-child {
+
+            border-bottom: none;
+        }
+
+
+        .cost-name {
+
+            font-size: 15px;
+        }
+
+
+        .cost-value {
+
+            text-align: right;
+
+            font-weight: bold;
+        }
+
+
+        .cost-percent {
+
+            text-align: right;
+
+            color: #666;
+
+            font-size: 14px;
+        }
+
+
+        .cost-total {
+
+            margin-top: 12px;
+
+            padding-top: 15px;
+
+            border-top:
+                2px solid #222;
+
+            font-size: 18px;
+
+            font-weight: bold;
+        }
+
+
+        /* ==========================================
+           ГРАФИК
+        ========================================== */
+
+        .chart-item {
+
+            margin-bottom: 18px;
+        }
+
+
+        .chart-header {
+
+            display: flex;
+
+            justify-content:
+                space-between;
+
+            align-items: center;
+
+            margin-bottom: 7px;
+
+            font-size: 14px;
+        }
+
+
+        .chart-background {
+
+            width: 100%;
+
+            height: 12px;
+
+            background: #e5e7eb;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+        }
+
+
+        .chart-fill {
+
+            height: 100%;
+
+            background: #2563eb;
+
+            border-radius: 10px;
+
+            min-width: 2px;
+
+            transition:
+                width 0.5s ease;
+        }
+
+
+        /* ==========================================
+           АНАЛИЗ
+        ========================================== */
+
+        .analysis-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
+            gap: 12px;
+
+            margin-top: 15px;
+        }
+
+
+        .analysis-box {
+
+            padding: 16px;
+
+            background: #f4f5f7;
+
+            border-radius: 10px;
+        }
+
+
+        .analysis-title {
+
+            font-size: 13px;
+
+            color: #666;
+
+            margin-bottom: 6px;
+        }
+
+
+        .analysis-value {
+
+            font-size: 22px;
+
+            font-weight: bold;
+        }
+
+
+        /* ==========================================
+           ТАБЛИЦА СТАВКИ
+        ========================================== */
+
+        .rate-table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            margin-top: 10px;
+        }
+
+
+        .rate-table td {
+
+            padding: 14px 5px;
+
+            border-bottom:
+                1px solid #ddd;
+        }
+
+
+        .rate-table td:last-child {
+
+            text-align: right;
+
+            font-weight: bold;
+        }
+
+
+        /* ==========================================
+           ИНФОРМАЦИЯ
+        ========================================== */
+
+        .info {
+
+            padding: 15px;
+
+            background: #f4f5f7;
+
+            border-radius: 10px;
+
+            line-height: 1.5;
+
+            font-size: 14px;
+
+            margin-top: 15px;
+        }
+
+
+        /* ==========================================
+           МОБИЛЬНАЯ ВЕРСИЯ
+        ========================================== */
+
+        @media (max-width: 600px) {
+
+            body {
+
+                padding: 8px;
+            }
+
+
+            .fields,
+            .results,
+            .analysis-grid {
+
+                grid-template-columns: 1fr;
+            }
+
+
+            .card {
+
+                padding: 15px;
+            }
+
+
+            h1 {
+
+                font-size: 24px;
+            }
+
+
+            .cost-row {
+
+                grid-template-columns:
+                    1fr 90px 60px;
+
+                gap: 5px;
+            }
+
+
+            .cost-name {
+
+                font-size: 14px;
+            }
+
+
+            .cost-value {
+
+                font-size: 14px;
+            }
+
+
+            .status {
+
+                font-size: 19px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+             navigator.serviceWorker.register("/static/service-worker.js")
+                    .then(() => {
+                        console.log("Service Worker зарегистрирован");
+                    })
+                    .catch(error => {
+                        console.error("Ошибка Service Worker:", error);
+                    });
+            });
+        }
+    </script>
+
+
+<body>
+
+
+<div class="container">
+
+
+    <h1>
+        🚚 Калькулятор логиста
+    </h1>
+
+
+    <a href="/history" class="history-button">
+        📋 История рейсов
+    </a>
+
+
+    <!-- ==================================================
+         ФОРМА
+    ================================================== -->
+
+    <form method="POST">
+
+
+        <!-- ДАННЫЕ РЕЙСА -->
+
+        <div class="card">
+
+            <h2>
+                📍 Данные рейса
+            </h2>
+
+
+            <div class="fields">
+
+
+                <div>
+
+                    <label>
+                        Маршрут
+                    </label>
+
+                    <input
+                        type="text"
+                        name="route"
+                        placeholder="Красноярск → Новосибирск"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Расстояние туда, км
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="distance"
+                        value="300"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Обратный пробег, %
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="return_percent"
+                        value="0"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Ставка клиента, ₽/км
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="rate"
+                        value="65"
+                        required
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Желаемая маржа, %
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="target_margin"
+                        value="20"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Плановый пробег в месяц, км
+                    </label>
+
+                    <input
+                        type="number"
+                        step="1"
+                        name="monthly_distance"
+                        value="10000"
+                    >
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ТОПЛИВО -->
+
+        <div class="card">
+
+            <h2>
+                ⛽ Топливо
+            </h2>
+
+
+            <div class="fields">
+
+
+                <div>
+
+                    <label>
+                        Расход, л/100 км
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="consumption"
+                        value="18"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Цена топлива, ₽/л
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="fuel_price"
+                        value="70"
+                    >
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ВОДИТЕЛЬ -->
+
+        <div class="card">
+
+            <h2>
+                👷 Водитель
+            </h2>
+
+
+            <label>
+                Зарплата водителя, ₽/км
+            </label>
+
+            <input
+                type="number"
+                step="0.1"
+                name="driver_per_km"
+                value="10"
+            >
+
+        </div>
+
+
+        <!-- ПЕРЕМЕННЫЕ РАСХОДЫ -->
+
+        <div class="card">
+
+            <h2>
+                🔧 Переменные расходы
+            </h2>
+
+
+            <div class="fields">
+
+
+                <div>
+
+                    <label>
+                        ТО и ремонт, ₽/км
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="repair_per_km"
+                        value="5"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Шины, ₽/км
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="tires_per_km"
+                        value="2"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Амортизация, ₽/км
+                    </label>
+
+                    <input
+                        type="number"
+                        step="0.1"
+                        name="depreciation_per_km"
+                        value="8"
+                    >
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- ПОСТОЯННЫЕ РАСХОДЫ -->
+
+        <div class="card">
+
+            <h2>
+                📅 Постоянные расходы / месяц
+            </h2>
+
+
+            <div class="fields">
+
+
+                <div>
+
+                    <label>
+                        ОСАГО, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="osago"
+                        value="5000"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        КАСКО, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="kasko"
+                        value="10000"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Транспортный налог, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="tax"
+                        value="3000"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Лизинг / кредит, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="leasing"
+                        value="0"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Стоянка, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="parking"
+                        value="5000"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Мойка, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="washing"
+                        value="3000"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Диспетчер, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="dispatcher"
+                        value="0"
+                    >
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- РАСХОДЫ РЕЙСА -->
+
+        <div class="card">
+
+            <h2>
+                📦 Расходы на рейс
+            </h2>
+
+
+            <div class="fields">
+
+
+                <div>
+
+                    <label>
+                        Платные дороги, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="toll"
+                        value="0"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Погрузка / выгрузка, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="loading"
+                        value="0"
+                    >
+
+                </div>
+
+
+                <div>
+
+                    <label>
+                        Прочие расходы, ₽
+                    </label>
+
+                    <input
+                        type="number"
+                        name="other"
+                        value="1000"
+                    >
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- КНОПКА -->
+
+        <button
+            type="submit"
+            class="button"
+        >
+
+            РАССЧИТАТЬ РЕЙС
+
+        </button>
+
+
+    </form>
+
+
+    {% if result %}
+
+
+    <!-- ==================================================
+         СТАТУС
+    ================================================== -->
+
+    <div class="status {{ result.status_class }}">
+
+        {{ result.status }}
+
+    </div>
+
+
+    <!-- ==================================================
+         ОСНОВНЫЕ ПОКАЗАТЕЛИ
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            📊 Основные показатели
+        </h2>
+
+
+        <div class="results">
+
+
+            <div class="result">
+
+                <div class="result-name">
+                    Расстояние туда
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.1f"|format(result.distance) }}
+                    км
+
+                </div>
+
+            </div>
+
+
+            <div class="result">
+
+                <div class="result-name">
+                    Обратный пробег
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.1f"|format(result.return_distance) }}
+                    км
+
+                </div>
+
+            </div>
+
+
+            <div class="result important">
+
+                <div class="result-name">
+                    Фактический пробег
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.1f"|format(result.total_distance) }}
+                    км
+
+                </div>
+
+            </div>
+
+
+            <div class="result">
+
+                <div class="result-name">
+                    Доля обратного пробега
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.1f"|format(result.empty_distance_percent) }}
+                    %
+
+                </div>
+
+            </div>
+
+
+            <div class="result">
+
+                <div class="result-name">
+                    Расход топлива
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.1f"|format(result.liters) }}
+                    л
+
+                </div>
+
+            </div>
+
+
+            <div class="result">
+
+                <div class="result-name">
+                    Топливо на фактический км
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.1f"|format(result.fuel_cost_per_actual_km) }}
+                    ₽/км
+
+                </div>
+
+            </div>
+
+
+            <div class="result important">
+
+                <div class="result-name">
+                    Выручка
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.0f"|format(result.revenue) }}
+                    ₽
+
+                </div>
+
+            </div>
+
+
+            <div class="result important">
+
+                <div class="result-name">
+                    Себестоимость
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.0f"|format(result.total_cost) }}
+                    ₽
+
+                </div>
+
+            </div>
+
+
+            <div class="result important">
+
+                <div class="result-name">
+                    Себестоимость 1 оплачиваемого км
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.1f"|format(result.cost_per_km) }}
+                    ₽/км
+
+                </div>
+
+            </div>
+
+
+            <div class="result important">
+
+                <div class="result-name">
+                    Прибыль
+                </div>
+
+                <div
+                    class="result-value
+                    {% if result.profit < 0 %}
+                        loss
+                    {% else %}
+                        profit
+                    {% endif %}"
+                >
+
+                    {{ "%.0f"|format(result.profit) }}
+                    ₽
+
+                </div>
+
+            </div>
+
+
+            <div class="result important">
+
+                <div class="result-name">
+                    Фактическая маржа
+                </div>
+
+                <div class="result-value">
+
+                    {{ "%.1f"|format(result.margin) }}
+                    %
+
+                </div>
+
+            </div>
+
+
+            <div class="result">
+
+                <div class="result-name">
+                    Запас до минимальной ставки
+                </div>
+
+                <div
+                    class="result-value
+                    {% if result.rate_reserve < 0 %}
+                        loss
+                    {% else %}
+                        profit
+                    {% endif %}"
+                >
+
+                    {{ "%.1f"|format(result.rate_reserve) }}
+                    ₽/км
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         СТРУКТУРА СЕБЕСТОИМОСТИ
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            💸 Структура себестоимости
+        </h2>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                ⛽ Топливо
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.fuel_cost) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.fuel_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                👷 Водитель
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.driver_cost) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.driver_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                🔧 ТО и ремонт
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.repair_cost) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.repair_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                🛞 Шины
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.tires_cost) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.tires_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                📉 Амортизация
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.depreciation_cost) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.depreciation_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                📅 Постоянные расходы
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.fixed_cost) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.fixed_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                🛣️ Платные дороги
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.toll) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.toll_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                📦 Погрузка / выгрузка
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.loading) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.loading_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-row">
+
+            <div class="cost-name">
+                ➕ Прочие расходы
+            </div>
+
+            <div class="cost-value">
+                {{ "%.0f"|format(result.other) }} ₽
+            </div>
+
+            <div class="cost-percent">
+                {{ "%.1f"|format(result.other_percent) }}%
+            </div>
+
+        </div>
+
+
+        <div class="cost-total">
+
+            ИТОГО:
+
+            {{ "%.0f"|format(result.total_cost) }} ₽
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         ВИЗУАЛИЗАЦИЯ РАСХОДОВ
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            📊 Расходы наглядно
+        </h2>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>⛽ Топливо</span>
+
+                <b>
+                    {{ "%.1f"|format(result.fuel_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.fuel_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>👷 Водитель</span>
+
+                <b>
+                    {{ "%.1f"|format(result.driver_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.driver_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>🔧 ТО и ремонт</span>
+
+                <b>
+                    {{ "%.1f"|format(result.repair_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.repair_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>🛞 Шины</span>
+
+                <b>
+                    {{ "%.1f"|format(result.tires_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.tires_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>📉 Амортизация</span>
+
+                <b>
+                    {{ "%.1f"|format(result.depreciation_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.depreciation_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>📅 Постоянные расходы</span>
+
+                <b>
+                    {{ "%.1f"|format(result.fixed_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.fixed_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>🛣️ Платные дороги</span>
+
+                <b>
+                    {{ "%.1f"|format(result.toll_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.toll_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>📦 Погрузка / выгрузка</span>
+
+                <b>
+                    {{ "%.1f"|format(result.loading_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.loading_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+
+        <div class="chart-item">
+
+            <div class="chart-header">
+
+                <span>➕ Прочие расходы</span>
+
+                <b>
+                    {{ "%.1f"|format(result.other_percent) }}%
+                </b>
+
+            </div>
+
+            <div class="chart-background">
+
+                <div
+                    class="chart-fill"
+                    style="width: {{ result.other_percent }}%;"
+                ></div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         АНАЛИЗ РЕЙСА
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            🔎 Анализ рейса
+        </h2>
+
+
+        <div class="analysis-grid">
+
+
+            <div class="analysis-box">
+
+                <div class="analysis-title">
+                    Текущая ставка
+                </div>
+
+                <div class="analysis-value">
+
+                    {{ "%.1f"|format(result.rate) }}
+                    ₽/км
+
+                </div>
+
+            </div>
+
+
+            <div class="analysis-box">
+
+                <div class="analysis-title">
+                    Минимальная ставка
+                </div>
+
+                <div class="analysis-value">
+
+                    {{ "%.1f"|format(result.minimum_rate) }}
+                    ₽/км
+
+                </div>
+
+            </div>
+
+
+            <div class="analysis-box">
+
+                <div class="analysis-title">
+                    Целевая ставка
+                </div>
+
+                <div class="analysis-value">
+
+                    {{ "%.1f"|format(result.target_rate) }}
+                    ₽/км
+
+                </div>
+
+            </div>
+
+
+            <div class="analysis-box">
+
+                <div class="analysis-title">
+                    Целевая маржа
+                </div>
+
+                <div class="analysis-value">
+
+                    {{ "%.1f"|format(result.target_margin) }}
+                    %
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="info">
+
+            <b>
+                Запас до минимальной ставки:
+            </b>
+
+            {{ "%.1f"|format(result.rate_reserve) }}
+            ₽/км
+
+            <br><br>
+
+            <b>
+                Обратный пробег:
+            </b>
+
+            {{ "%.1f"|format(result.empty_distance_percent) }}%
+            от общего фактического пробега.
+
+        </div>
+
+    </div>
+
+
+    <!-- ==================================================
+         ПРОГНОЗ
+    ================================================== -->
+
+    <div class="card">
+
+        <h2>
+            🎯 Прогноз при целевой ставке
+        </h2>
+
+
+        <table class="rate-table">
+
+
+            <tr>
+
+                <td>
+                    Целевая ставка
+                </td>
+
+                <td>
+
+                    {{ "%.1f"|format(result.target_rate) }}
+                    ₽/км
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Выручка
+                </td>
+
+                <td>
+
+                    {{ "%.0f"|format(result.target_revenue) }}
+                    ₽
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Себестоимость
+                </td>
+
+                <td>
+
+                    {{ "%.0f"|format(result.total_cost) }}
+                    ₽
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Прибыль
+                </td>
+
+                <td class="profit">
+
+                    {{ "%.0f"|format(result.target_profit) }}
+                    ₽
+
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    Маржа
+                </td>
+
+                <td>
+
+                    {{ "%.1f"|format(result.target_margin) }}
+                    %
+
+                </td>
+
+            </tr>
+
+
+        </table>
+
+
+        <div class="info">
+
+            <b>
+                Минимальная ставка
+            </b>
+            — ставка, при которой рассчитанные
+            расходы полностью покрываются.
+
+
+            <br><br>
+
+
+            <b>
+                Целевая ставка
+            </b>
+            — ставка, которая позволяет получить
+            указанную маржу.
+
+
+            <br><br>
+
+
+            <b>
+                Важно:
+            </b>
+            выручка рассчитывается по оплачиваемому
+            расстоянию, а расходы — по фактическому
+            пробегу автомобиля.
+
+        </div>
+
+    </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+</body>
+
+</html>
+```
